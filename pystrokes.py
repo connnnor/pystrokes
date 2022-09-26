@@ -41,7 +41,7 @@ def getStrokeMap(character):
 
 def getStrokePngs(strokeMap):
   strokes = strokeMap["strokes"]
-  print(f'len(strokes) = {len(strokes)}')
+  #print(f'len(strokes) = {len(strokes)}')
   strokesPng = [] 
   for i in range(0, len(strokes)+1):
     svgPaths = []
@@ -58,19 +58,19 @@ def getStrokePngs(strokeMap):
   return strokesPng
 
 def tilePngs(pngs, nCols, elemHeight, elemWidth):
-  print(f'len(pngs) = {len(pngs)}')
+  #print(f'len(pngs) = {len(pngs)}')
   numRows = math.ceil(len(pngs) / nCols)
   imgWidth = ELEM_WIDTH * GRID_COLS
   imgHeight = ELEM_HEIGHT * numRows
   newImg = Image.new('RGBA', (imgWidth, imgHeight),color=(255,255,255,0))
-  print(f"Dimensions: W x H = {imgWidth} x {imgHeight}")
+  #print(f"Dimensions: W x H = {imgWidth} x {imgHeight}")
   for i, png in enumerate(pngs):
     backImg = Image.open(BackgroundPath)
     backFill = Image.new("RGBA", (ELEM_WIDTH, ELEM_HEIGHT), "WHITE") # Create a white rgba background
     strokeImg = Image.open(io.BytesIO(png))
     xPos = (i % nCols) * ELEM_WIDTH
     yPos = (i // nCols) * ELEM_HEIGHT
-    print(f"Pasting stroke[{i}] at {xPos} x {yPos}")
+    #print(f"Pasting stroke[{i}] at {xPos} x {yPos}")
     backFill.alpha_composite(backImg, (0, 0))
     newImg.paste(backFill, (xPos, yPos))
     newImg.alpha_composite(strokeImg, (xPos, yPos))
@@ -80,15 +80,16 @@ def tilePngs(pngs, nCols, elemHeight, elemWidth):
 
 if __name__ == "__main__":
   # output sequences for each char
-  character = sys.argv[1]
-  # get json object for character
-  strokeMap = getStrokeMap(character)
-  # get list of pngs
-  strokePngs = getStrokePngs(strokeMap)
-  # tile images 
-  pngBytes = tilePngs(strokePngs[1:], GRID_COLS, ELEM_HEIGHT, ELEM_WIDTH)
-  filename = ResultsPath.format(ch=character, pn=pinyin.get(character))
-  with open(filename, "wb") as f:
-      print(f"writing {f.name}")
-      f.write(pngBytes)
+  characters = sys.argv[1]
+  for ch in characters: 
+    # get json object for character
+    strokeMap = getStrokeMap(ch)
+    # get list of pngs
+    strokePngs = getStrokePngs(strokeMap)
+    # tile images 
+    pngBytes = tilePngs(strokePngs[1:], GRID_COLS, ELEM_HEIGHT, ELEM_WIDTH)
+    filename = ResultsPath.format(ch=ch, pn=pinyin.get(ch))
+    with open(filename, "wb") as f:
+        print(f"writing {f.name} ({len(strokePngs)} strokes)")
+        f.write(pngBytes)
    
