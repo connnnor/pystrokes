@@ -3,7 +3,6 @@ import cairo
 ELEM_HEIGHT = 1024
 ELEM_WIDTH = 1024
 
-
 OutputPath = "tianzige.png"
 
 def makeTianZiGe(width, height, rgba=(0,0,0,0)):
@@ -13,7 +12,7 @@ def makeTianZiGe(width, height, rgba=(0,0,0,0)):
     # creating a cairo context object
     context = cairo.Context(surface)
     # setting scale of the context
-    context.scale(ELEM_HEIGHT, ELEM_WIDTH)
+    context.scale(width, height)
     # setting line width of the context
     (r,g,b,a) = rgba
     context.set_source_rgba(r,g,b,a)
@@ -50,5 +49,4 @@ def makeTianZiGe(width, height, rgba=(0,0,0,0)):
     surface.write_to_png(OutputPath)
   
 if __name__ == "__main__":
-  makeTianZiGe(ELEM_HEIGHT - 128, ELEM_WIDTH - 128, rgba=(0.5, 0.01, 0.01, 1.0))
-
+  makeTianZiGe(ELEM_HEIGHT, ELEM_WIDTH, rgba=(0.5, 0.01, 0.01, 1.0))

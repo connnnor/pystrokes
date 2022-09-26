@@ -4,6 +4,9 @@ from cairosvg import svg2png
 from PIL import Image
 import math
 import io
+import pinyin
+
+WRITE_EVERY_STROKE = False
 
 svgCodeTemplate = """
 <svg viewBox="0 0 1024 1024">
@@ -20,11 +23,10 @@ svgPathTemplate = """
 ELEM_HEIGHT = 1024
 ELEM_WIDTH  = 1024
 
-#GRID_ROWS = 7
 GRID_COLS = 6
 
 GraphicsPath = 'graphics.txt'
-ResultsPath = './grid.png'
+ResultsPath = 'strokes/{pn}_{ch}_strokes.png'
 BackgroundPath = './tianzige.png'
 
 # keys = character, strokes, medians
@@ -41,16 +43,18 @@ def getStrokePngs(strokeMap):
   strokes = strokeMap["strokes"]
   print(f'len(strokes) = {len(strokes)}')
   strokesPng = [] 
-  for i, strokeI in enumerate(strokes):
-    svgPaths = "\n".join([svgPathTemplate.format(COLOR="#000000",DATA=x) for x in strokes[:i]])
-#   svgPaths = []
-#   if i > 0:
-#     svgPaths = [svgPathTemplate.format(COLOR="#000000",DATA=x) for x in strokes[:i-1]]
-#   svgPaths.append(svgPathTemplate.format(COLOR="#FF0000",DATA=strokes[i]))
-#   svgPaths = "\n".join(svgPaths)
-    #print(f'i = {i}. svgPaths = {svgPaths}')
-    svgCode = svgCodeTemplate.format(STROKES=svgPaths)
+  for i in range(0, len(strokes)+1):
+    svgPaths = []
+    for j in range(0, i):
+      if j == i-1:
+        color = "#FF0000" # red
+      else:
+        color = "#000000" # black
+      svgPaths.append(svgPathTemplate.format(COLOR=color,DATA=strokes[j]))
+    svgCode = svgCodeTemplate.format(STROKES="\n".join(svgPaths))
     strokesPng.append(svg2png(bytestring=svgCode,write_to=None))
+    if WRITE_EVERY_STROKE:
+      svg2png(bytestring=svgCode,write_to=f"stroke_{i:02d}.png")
   return strokesPng
 
 def tilePngs(pngs, nCols, elemHeight, elemWidth):
@@ -68,10 +72,11 @@ def tilePngs(pngs, nCols, elemHeight, elemWidth):
     yPos = (i // nCols) * ELEM_HEIGHT
     print(f"Pasting stroke[{i}] at {xPos} x {yPos}")
     backFill.alpha_composite(backImg, (0, 0))
-#   newImg.paste(backImg, (xPos, yPos))
     newImg.paste(backFill, (xPos, yPos))
     newImg.alpha_composite(strokeImg, (xPos, yPos))
-  newImg.save(ResultsPath,"png")
+  imgByteArr = io.BytesIO()
+  newImg.save(imgByteArr, "png")
+  return imgByteArr.getvalue()
 
 if __name__ == "__main__":
   # output sequences for each char
@@ -80,9 +85,10 @@ if __name__ == "__main__":
   strokeMap = getStrokeMap(character)
   # get list of pngs
   strokePngs = getStrokePngs(strokeMap)
-  #print(strokePngs)
-  # tile pngs
   # tile images 
-  png = tilePngs(strokePngs[1:], GRID_COLS, ELEM_HEIGHT, ELEM_WIDTH)
-  #print(strokeMap)
+  pngBytes = tilePngs(strokePngs[1:], GRID_COLS, ELEM_HEIGHT, ELEM_WIDTH)
+  filename = ResultsPath.format(ch=character, pn=pinyin.get(character))
+  with open(filename, "wb") as f:
+      print(f"writing {f.name}")
+      f.write(pngBytes)
    
