@@ -39,6 +39,24 @@ def getStrokeMap(character):
         return json.loads(line)
     return None
 
+
+def getStrokeSvgs(strokeMap):
+  strokes = strokeMap["strokes"]
+  #print(f'len(strokes) = {len(strokes)}')
+  strokesSvg = [] 
+  for i in range(0, len(strokes)+1):
+    svgPaths = []
+    for j in range(0, i):
+      if j == i-1:
+        color = "#FF0000" # red
+      else:
+        color = "#000000" # black
+      svgPaths.append(svgPathTemplate.format(COLOR=color,DATA=strokes[j]))
+    print(f"path {i} = {''.join(svgPaths)}")
+    #svgCode = svgCodeTemplate.format(STROKES="\n".join(svgPaths))
+    strokesSvg.append('\n'.join(svgPaths))
+  return strokesSvg[1:]
+
 def getStrokePngs(strokeMap):
   strokes = strokeMap["strokes"]
   #print(f'len(strokes) = {len(strokes)}')
@@ -54,9 +72,11 @@ def getStrokePngs(strokeMap):
     svgCode = svgCodeTemplate.format(STROKES="\n".join(svgPaths))
     strokesPng.append(svg2png(bytestring=svgCode,write_to=None))
     if WRITE_EVERY_STROKE:
-      svg2png(bytestring=svgCode,write_to=f"stroke_{i:02d}.png")
+      svg2png(bytestring=svgCode,write_to=f"tmp/stroke_nobg_{i:02d}.png")
   return strokesPng
 
+# TODO: Move the overlaying of the images somewhere else
+# this function should just tile
 def tilePngs(pngs, nCols, elemHeight, elemWidth):
   #print(f'len(pngs) = {len(pngs)}')
   numRows = math.ceil(len(pngs) / nCols)
@@ -65,6 +85,7 @@ def tilePngs(pngs, nCols, elemHeight, elemWidth):
   newImg = Image.new('RGBA', (imgWidth, imgHeight),color=(255,255,255,0))
   #print(f"Dimensions: W x H = {imgWidth} x {imgHeight}")
   for i, png in enumerate(pngs):
+    singleImg = Image.new('RGBA', (ELEM_WIDTH, ELEM_HEIGHT),color=(255,255,255,0))
     backImg = Image.open(BackgroundPath)
     backFill = Image.new("RGBA", (ELEM_WIDTH, ELEM_HEIGHT), "WHITE") # Create a white rgba background
     strokeImg = Image.open(io.BytesIO(png))
@@ -74,6 +95,10 @@ def tilePngs(pngs, nCols, elemHeight, elemWidth):
     backFill.alpha_composite(backImg, (0, 0))
     newImg.paste(backFill, (xPos, yPos))
     newImg.alpha_composite(strokeImg, (xPos, yPos))
+    if WRITE_EVERY_STROKE:
+      singleImg.paste(backFill, (0, 0))
+      singleImg.alpha_composite(strokeImg, (0,0))
+      singleImg.save(f"tmp/stroke_{i:02d}.png")
   imgByteArr = io.BytesIO()
   newImg.save(imgByteArr, "png")
   return imgByteArr.getvalue()
@@ -86,6 +111,7 @@ if __name__ == "__main__":
     strokeMap = getStrokeMap(ch)
     # get list of pngs
     strokePngs = getStrokePngs(strokeMap)
+    strokeSvgs = getStrokeSvgs(strokeMap)
     # tile images 
     pngBytes = tilePngs(strokePngs[1:], GRID_COLS, ELEM_HEIGHT, ELEM_WIDTH)
     filename = ResultsPath.format(ch=ch, pn=pinyin.get(ch))
