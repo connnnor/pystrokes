@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+
+{% block body %}
+
+<table>
+{% for s_svg in stroke_svgs %}
+    <tr>
+    <td>
+
+        <svg viewBox="0 0 1024 1024" width="{{ width }}" height="{{ height }}">
+            <svg>
+                <g transform="scale(1, 1)">
+                    <path style="fill:none;stroke-width:0.01;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(50%,1%,1%);stroke-opacity:1;stroke-miterlimit:10;" d="M 0 0 L 0 1 L 1 1 L 1 0 L 0 0 " transform="matrix(1024,0,0,1024,0,0)"/>
+                    <path style="fill:none;stroke-width:0.005;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(50%,1%,1%);stroke-opacity:1;stroke-dasharray:0.03,0.01;stroke-miterlimit:10;" d="M 0 0.5 L 1 0.5 M 0.5 0 L 0.5 1 " transform="matrix(1024,0,0,1024,0,0)"/>
+                    <path style="fill:none;stroke-width:0.005;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(50%,1%,1%);stroke-opacity:1;stroke-dasharray:0.03,0.01;stroke-miterlimit:10;" d="M 0 0 L 1 1 " transform="matrix(1024,0,0,1024,0,0)"/>
+                    <path style="fill:none;stroke-width:0.005;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(50%,1%,1%);stroke-opacity:1;stroke-dasharray:0.03,0.01;stroke-miterlimit:10;" d="M 0 1 L 1 0 " transform="matrix(1024,0,0,1024,0,0)"/>
+                </g>
+            </svg>
+            <svg>
+                <g transform="scale(1, -1) translate(0, -900)">
+                    {{ s_svg }}
+                </svg>
+            </g>
+        </svg>
+        <!-- <svg width="{{ width }}" height="{{ height }}"/> -->
+    </td>
+    </tr>
+{% endfor %}
+</table>
+</body>
+</html>
+{% endblock %}
+<!--        <img src="{{ png }}" width="{{ width }}" height="{{ height }}"> -->
