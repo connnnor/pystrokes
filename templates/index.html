@@ -1,50 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{% block title %}{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>{% block title %}{% endblock %}</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+        <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    </head>
 <body>
-
-{% block body %}
-<main role="main" class="container">
-    <h1 class="mt-5"> {{ title }} </h1>
-
-<!--<div class="d-flex flex-wrap" style="height: 100px;"> -->
-<div class="d-flex align-content-stretch flex-wrap">
-{% for s_svg in stroke_svgs %}
-<span class="border">
-    <!-- <svg viewBox="0 0 1024 1024" width="{{ width }}" height="{{ height }}"> -->
-    <div>
-    <svg viewBox="0 0 1024 1024" width="100%" height="auto" preserveAspectRatio="none">
-    <svg viewBox="0 0 1024 1024" width="100%" height="auto" preserveAspectRatio="none">
-            <!-- <svg> -->
-            <svg>
-                <g transform="scale(1, 1)">
-                    <path style="fill:none;stroke-width:0.01;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(50%,1%,1%);stroke-opacity:1;stroke-miterlimit:10;" d="M 0 0 L 0 1 L 1 1 L 1 0 L 0 0 " transform="matrix(1024,0,0,1024,0,0)"/>
-                    <path style="fill:none;stroke-width:0.005;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(50%,1%,1%);stroke-opacity:1;stroke-dasharray:0.03,0.01;stroke-miterlimit:10;" d="M 0 0.5 L 1 0.5 M 0.5 0 L 0.5 1 " transform="matrix(1024,0,0,1024,0,0)"/>
-                    <path style="fill:none;stroke-width:0.005;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(50%,1%,1%);stroke-opacity:1;stroke-dasharray:0.03,0.01;stroke-miterlimit:10;" d="M 0 0 L 1 1 " transform="matrix(1024,0,0,1024,0,0)"/>
-                    <path style="fill:none;stroke-width:0.005;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(50%,1%,1%);stroke-opacity:1;stroke-dasharray:0.03,0.01;stroke-miterlimit:10;" d="M 0 1 L 1 0 " transform="matrix(1024,0,0,1024,0,0)"/>
-                </g>
-            </svg>
-            <svg>
-                <g transform="scale(1, -1) translate(0, -900)">
-                    {{ s_svg }}
-                </svg>
-            </g>
-        </svg>
-        <!-- <svg width="{{ width }}" height="{{ height }}"/> -->
-    </div>
-
-</span>
-{% endfor %}
-</div>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+    {% block body %}
+    <main role="main" class="container mx-auto">
+        <h1 class="mt-5"> {{ title }} </h1>
+        <div class="container" >
+            <div class="row">
+            {% for s_svg in stroke_svgs %}
+                <div class="col-lg-2 col-md-3 col-xs-6 ">
+                    <div class="box">
+                        <svg viewBox="0 0 1024 1024" preserveAspectRatio="none" >
+                            <!-- tianzige guidelines -->
+                            <svg class="tianzige">
+                                <g transform="scale(1, 1)">
+                                <line x1="0" y1="512" x2="1024" y2="512" stroke-dasharray="32 16"/>
+                                <line x1="512" y1="0" x2="512" y2="1024" stroke-dasharray="32 16"/>
+                                <line x1="0" y1="0" x2="1024" y2="1024" stroke-dasharray="32 16"/>
+                                <line x1="0" y1="1024" x2="1024" y2="0" stroke-dasharray="32 16"/>
+                                <rect x="-1" y="-1" width="1024" height="1024"/>
+                                </g>
+                            </svg>
+                            <!-- strokes -->
+                            <svg>
+                                <g class="stroke-container" transform="scale(1, -1) translate(0, -900)">
+                                    {{ s_svg|safe }}
+                                </g>
+                            </svg>
+                        </svg>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
 </body>
 </html>
 {% endblock %}
-<!--        <img src="{{ png }}" width="{{ width }}" height="{{ height }}"> -->

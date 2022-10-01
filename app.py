@@ -3,19 +3,16 @@ import os
 from pystrokes import getStrokeSvgs, getStrokeMap
 from flask import Flask, render_template, request
 app = Flask(__name__)
- 
- 
-file_loader = FileSystemLoader('templates')
-env = Environment(loader=file_loader)
-env.trim_blocks = True
-env.lstrip_blocks = True
-env.rstrip_blocks = True
-template = env.get_template('index.html')
-filename = 'index.html'
 
 @app.route("/")
 def form():
   return render_template('form.html')
+
+@app.route("/stroke")
+def stroke():
+  ch = request.args.get('character', default = '在', type = str)
+  svgs = getStrokeSvgs(getStrokeMap(ch))
+  return render_template('index.html', title=f'{ch} Strokes' , stroke_svgs=svgs)
 
 @app.route("/data/", methods = ['POST', 'GET'])
 def data():
@@ -23,8 +20,14 @@ def data():
     return f"The URL /data is accessed directly. Try going to '/form' to submit form"
   if request.method == 'POST':
     form_data = request.form
-    ch = form_data['character']
-    svgs = getStrokeSvgs(getStrokeMap(ch))
-    return template.render(stroke_svgs = svgs, width = 400, height = 400)
+    # get only 1 character
+    ch = form_data['character'][:1]
+    # return error if it is not in stroke map
+    strokeData = getStrokeMap(ch)
+    if strokeData is not None:
+      svgs = getStrokeSvgs(strokeData)
+      return render_template('index.html', title=f'{ch} Strokes' , stroke_svgs=svgs)
+    else:
+      return render_template('form.html', form_error=True)
  
 app.run(host='localhost', port=5000)

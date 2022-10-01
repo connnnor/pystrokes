@@ -35,25 +35,20 @@ strokeMap = {}
 def getStrokeMap(character):
   with open(GraphicsPath, "r") as f:
     for line in f:
-      if character in line:
+      patternString = f'"character":"{character}"'
+      if patternString in line:
         return json.loads(line)
     return None
 
 
 def getStrokeSvgs(strokeMap):
   strokes = strokeMap["strokes"]
-  #print(f'len(strokes) = {len(strokes)}')
   strokesSvg = [] 
-  for i in range(0, len(strokes)+1):
+  for i in range(0, len(strokes)):
     svgPaths = []
-    for j in range(0, i):
-      if j == i-1:
-        color = "#FF0000" # red
-      else:
-        color = "#000000" # black
+    for j in range(0, i+1):
+      color = "red" if i == j else "black"
       svgPaths.append(svgPathTemplate.format(COLOR=color,DATA=strokes[j]))
-    print(f"path {i} = {''.join(svgPaths)}")
-    #svgCode = svgCodeTemplate.format(STROKES="\n".join(svgPaths))
     strokesSvg.append('\n'.join(svgPaths))
   return strokesSvg[1:]
 
@@ -61,13 +56,10 @@ def getStrokePngs(strokeMap):
   strokes = strokeMap["strokes"]
   #print(f'len(strokes) = {len(strokes)}')
   strokesPng = [] 
-  for i in range(0, len(strokes)+1):
+  for i in range(0, len(strokes)):
     svgPaths = []
-    for j in range(0, i):
-      if j == i-1:
-        color = "#FF0000" # red
-      else:
-        color = "#000000" # black
+    for j in range(0, i+1):
+      color = "red" if i == j else "black"
       svgPaths.append(svgPathTemplate.format(COLOR=color,DATA=strokes[j]))
     svgCode = svgCodeTemplate.format(STROKES="\n".join(svgPaths))
     strokesPng.append(svg2png(bytestring=svgCode,write_to=None))
@@ -113,7 +105,8 @@ if __name__ == "__main__":
     strokePngs = getStrokePngs(strokeMap)
     strokeSvgs = getStrokeSvgs(strokeMap)
     # tile images 
-    pngBytes = tilePngs(strokePngs[1:], GRID_COLS, ELEM_HEIGHT, ELEM_WIDTH)
+#   pngBytes = tilePngs(strokePngs[1:], GRID_COLS, ELEM_HEIGHT, ELEM_WIDTH)
+    pngBytes = tilePngs(strokePngs, GRID_COLS, ELEM_HEIGHT, ELEM_WIDTH)
     filename = ResultsPath.format(ch=ch, pn=pinyin.get(ch))
     with open(filename, "wb") as f:
         print(f"writing {f.name} ({len(strokePngs)} strokes)")
