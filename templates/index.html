@@ -4,17 +4,17 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>{% block title %}{% endblock %}</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
         <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
     </head>
 <body>
     {% block body %}
     <main role="main" class="container mx-auto">
-        <h1 class="mt-5"> {{ title }} </h1>
         <div class="container" >
+            {% for d in data %}
+            <h1 class="mt-5"> {{ d['character'] }} Strokes</h1>
             <div class="row">
-            {% for s_svg in stroke_svgs %}
+                {% for s_svg in d['strokes'] %}
                 <div class="col-lg-2 col-md-3 col-xs-6 ">
                     <div class="box">
                         <svg viewBox="0 0 1024 1024" preserveAspectRatio="none" >
@@ -39,6 +39,7 @@
                 </div>
                 {% endfor %}
             </div>
+            {% endfor %}
         </div>
         </div>
     </main>

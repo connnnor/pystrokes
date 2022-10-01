@@ -74,7 +74,6 @@ def writeStrokePng(svgs, cols, filename):
   # convert svgs to PIL Image objects
   images = [svg2Image(svgCodeTemplate.format(STROKES=svg)) for svg in svgs]
   images = [addBackgroundImage(i, backgroundImg) for i in images]
-  
   # Create a white rgba background
   grid = imageGrid(images, rows, cols)
   grid.save(filename, "png")

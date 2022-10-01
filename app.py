@@ -10,9 +10,8 @@ def form():
 
 @app.route("/stroke")
 def stroke():
-  ch = request.args.get('character', default = '在', type = str)
-  svgs = getStrokeSvgs(getStrokeMap(ch))
-  return render_template('index.html', title=f'{ch} Strokes' , stroke_svgs=svgs)
+  chars = request.args.get('character', default = '在', type = str)
+  return render_strokes_template(chars)
 
 @app.route("/data/", methods = ['POST', 'GET'])
 def data():
@@ -20,14 +19,19 @@ def data():
     return f"The URL /data is accessed directly. Try going to '/form' to submit form"
   if request.method == 'POST':
     form_data = request.form
-    # get only 1 character
-    ch = form_data['character'][:1]
-    # return error if it is not in stroke map
-    strokeData = getStrokeMap(ch)
-    if strokeData is not None:
-      svgs = getStrokeSvgs(strokeData)
-      return render_template('index.html', title=f'{ch} Strokes' , stroke_svgs=svgs)
-    else:
-      return render_template('form.html', form_error=True)
+    return render_strokes_template(form_data['characters'])
+
+def render_strokes_template(inputChars):
+    inputChars = inputChars[:4]
+    if len(inputChars) < 1:
+        return render_template('form.html', form_error=True)
+    data = []
+    for ch in inputChars:
+      strokeDict = getStrokeMap(ch)
+      if strokeDict is None:
+        return render_template('form.html', form_error=True)
+      svgs = getStrokeSvgs(strokeDict)
+      data.append({'character' : ch, 'strokes' : svgs})
+    return render_template('index.html', data=data, title=f'{inputChars} Strokes')
  
 app.run(host='localhost', port=5000)
