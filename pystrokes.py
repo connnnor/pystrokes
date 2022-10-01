@@ -6,8 +6,6 @@ import math
 import io
 import pinyin
 
-WRITE_EVERY_STROKE = False
-
 svgCodeTemplate = """
 <svg viewBox="0 0 1024 1024">
   <g transform="scale(1, -1) translate(0, -900)">
@@ -27,7 +25,7 @@ GRID_COLS = 6
 
 GraphicsPath = 'graphics.txt'
 ResultsPath = 'strokes/{pn}_{ch}_strokes.png'
-BackgroundPath = './tianzige.png'
+TianZiGePath =  './tianzige.png'
 
 # keys = character, strokes, medians
 strokeMap = {}
@@ -52,48 +50,40 @@ def getStrokeSvgs(strokeMap):
     strokesSvg.append('\n'.join(svgPaths))
   return strokesSvg[1:]
 
-def getStrokePngs(strokeMap):
-  strokes = strokeMap["strokes"]
-  #print(f'len(strokes) = {len(strokes)}')
-  strokesPng = [] 
-  for i in range(0, len(strokes)):
-    svgPaths = []
-    for j in range(0, i+1):
-      color = "red" if i == j else "black"
-      svgPaths.append(svgPathTemplate.format(COLOR=color,DATA=strokes[j]))
-    svgCode = svgCodeTemplate.format(STROKES="\n".join(svgPaths))
-    strokesPng.append(svg2png(bytestring=svgCode,write_to=None))
-    if WRITE_EVERY_STROKE:
-      svg2png(bytestring=svgCode,write_to=f"tmp/stroke_nobg_{i:02d}.png")
-  return strokesPng
+def addBackgroundImage(fgImg, bgImg, color="WHITE"):
+  newImg = Image.new(("RGBA"), fgImg.size, color=color)
+  newImg.alpha_composite(bgImg, (0, 0))
+  newImg.alpha_composite(fgImg, (0, 0))
+  newImg.convert('RGBA')
+  return newImg
 
-# TODO: Move the overlaying of the images somewhere else
-# this function should just tile
-def tilePngs(pngs, nCols, elemHeight, elemWidth):
-  #print(f'len(pngs) = {len(pngs)}')
-  numRows = math.ceil(len(pngs) / nCols)
-  imgWidth = ELEM_WIDTH * GRID_COLS
-  imgHeight = ELEM_HEIGHT * numRows
-  newImg = Image.new('RGBA', (imgWidth, imgHeight),color=(255,255,255,0))
-  #print(f"Dimensions: W x H = {imgWidth} x {imgHeight}")
-  for i, png in enumerate(pngs):
-    singleImg = Image.new('RGBA', (ELEM_WIDTH, ELEM_HEIGHT),color=(255,255,255,0))
-    backImg = Image.open(BackgroundPath)
-    backFill = Image.new("RGBA", (ELEM_WIDTH, ELEM_HEIGHT), "WHITE") # Create a white rgba background
-    strokeImg = Image.open(io.BytesIO(png))
-    xPos = (i % nCols) * ELEM_WIDTH
-    yPos = (i // nCols) * ELEM_HEIGHT
-    #print(f"Pasting stroke[{i}] at {xPos} x {yPos}")
-    backFill.alpha_composite(backImg, (0, 0))
-    newImg.paste(backFill, (xPos, yPos))
-    newImg.alpha_composite(strokeImg, (xPos, yPos))
-    if WRITE_EVERY_STROKE:
-      singleImg.paste(backFill, (0, 0))
-      singleImg.alpha_composite(strokeImg, (0,0))
-      singleImg.save(f"tmp/stroke_{i:02d}.png")
-  imgByteArr = io.BytesIO()
-  newImg.save(imgByteArr, "png")
-  return imgByteArr.getvalue()
+def imageGrid(imgs, rows, cols, color="WHITE"): 
+    assert len(imgs) <= rows*cols
+
+    w, h = imgs[0].size
+    grid = Image.new('RGB', size=(cols*w, rows*h), color=color)
+    grid_w, grid_h = grid.size
+    
+    for i, img in enumerate(imgs):
+        grid.paste(img, box=(i%cols*w, i//cols*h))
+    return grid
+
+def writeStrokePng(svgs, cols, filename):
+  rows = math.ceil(len(svgs) / cols)
+  backgroundImg = Image.open(TianZiGePath)
+  # convert svgs to PIL Image objects
+  images = [svg2Image(svgCodeTemplate.format(STROKES=svg)) for svg in svgs]
+  images = [addBackgroundImage(i, backgroundImg) for i in images]
+  
+  # Create a white rgba background
+  grid = imageGrid(images, rows, cols)
+  grid.save(filename, "png")
+
+def svg2Image(svg):
+  out = io.BytesIO()
+  print(svg)
+  svg2png(bytestring=svg, write_to=out)
+  return Image.open(out)
 
 if __name__ == "__main__":
   # output sequences for each char
@@ -102,13 +92,7 @@ if __name__ == "__main__":
     # get json object for character
     strokeMap = getStrokeMap(ch)
     # get list of pngs
-    strokePngs = getStrokePngs(strokeMap)
     strokeSvgs = getStrokeSvgs(strokeMap)
     # tile images 
-#   pngBytes = tilePngs(strokePngs[1:], GRID_COLS, ELEM_HEIGHT, ELEM_WIDTH)
-    pngBytes = tilePngs(strokePngs, GRID_COLS, ELEM_HEIGHT, ELEM_WIDTH)
     filename = ResultsPath.format(ch=ch, pn=pinyin.get(ch))
-    with open(filename, "wb") as f:
-        print(f"writing {f.name} ({len(strokePngs)} strokes)")
-        f.write(pngBytes)
-   
+    writeStrokePng(strokeSvgs, GRID_COLS,filename)
