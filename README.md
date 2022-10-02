@@ -22,18 +22,33 @@ __graphics.txt__ stroke data:
 
 ## Examples
 
-Web Examples:
+__Web Examples__:
 
-![](strokes_screenshot2)
-![](strokes_screenshot1.png)
-![](form_screenshot.png)
+![](examples/form_screenshot.png)
+![](examples/strokes_screenshot1.png)
+![](examples/strokes_screenshot2.png)
+![](examples/strokes_screenshot3.png)
 
 
-PNG Examples:
 
-![](zhi_strokes.png)
-![](dao_strokes.png)
-![](le_strokes.png)
+__Generating PNG Locally__
+
+generated with the command `python3 pystrokes.py  知道了`
+
+![](examples/zhi_strokes.png)
+![](examples/dao_strokes.png)
+![](examples/le_strokes.png)
+
+
+## Setup
+
+Create venv and install dependencies
+
+```
+python3 -m venv env
+source env/bin/activate
+python3 -m pip install -r requirements.txt
+```
 
 
 ## Usage
@@ -42,14 +57,6 @@ Starting flask server:
 
 ```
 $ python3 app.py
-usage: app.py [-h] [--host HOST] [--port PORT]
-
-run pystrokes webserver
-
-options:
-  -h, --help   show this help message and exit
-  --host HOST  flask host
-  --port PORT  flask port
 ```
 
 
