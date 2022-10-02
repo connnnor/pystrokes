@@ -1,8 +1,13 @@
 from pystrokes import getStrokeSvgs, getStrokeMap
 from flask import Flask, render_template, request
+import argparse
 app = Flask(__name__)
 
 MAX_NUM_CHARS = 4
+
+parser = argparse.ArgumentParser(description='run pystrokes webserver')
+parser.add_argument('--host', type=str, default='localhost', help='flask host')
+parser.add_argument('--port', type=int, default=5000, help='flask port')
 
 @app.route("/")
 def form():
@@ -34,4 +39,5 @@ def render_strokes_template(inputChars):
       data.append({'character' : ch, 'strokes' : svgs})
     return render_template('index.html', data=data, title=f'{inputChars} Strokes')
  
-app.run(host='localhost', port=5000)
+args = parser.parse_args()
+app.run(host=args.host, port=args.port)
