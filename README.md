@@ -40,9 +40,20 @@ generated with the command `python3 pystrokes.py  知道了`
 ![](examples/le_strokes.png)
 
 
-## Setup
+## Dependencies
 
-Create venv and install dependencies
+Requires `cairo` to be installed for rendering the svgs to png
+
+This is how I installed on macOS 12.6
+
+```
+conda install cairo pango gdk-pixbuf libffi
+```
+
+
+## Setup and Usage
+
+Setup
 
 ```
 python3 -m venv env
@@ -51,9 +62,7 @@ python3 -m pip install -r requirements.txt
 ```
 
 
-## Usage
-
-Starting flask server:
+Start flask server with the command below then point your browser to `localhost:5000` or `127.0.0.1:5000`
 
 ```
 $ python3 app.py
