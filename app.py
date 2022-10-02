@@ -1,8 +1,8 @@
-from jinja2 import Environment, PackageLoader, FileSystemLoader
-import os
 from pystrokes import getStrokeSvgs, getStrokeMap
 from flask import Flask, render_template, request
 app = Flask(__name__)
+
+MAX_NUM_CHARS = 4
 
 @app.route("/")
 def form():
@@ -22,7 +22,7 @@ def data():
     return render_strokes_template(form_data['characters'])
 
 def render_strokes_template(inputChars):
-    inputChars = inputChars[:4]
+    inputChars = inputChars[:MAX_NUM_CHARS]
     if len(inputChars) < 1:
         return render_template('form.html', form_error=True)
     data = []

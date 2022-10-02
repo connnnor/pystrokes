@@ -1,10 +1,14 @@
-import sys
 import json
 from cairosvg import svg2png
 from PIL import Image
 import math
 import io
 import pinyin
+import mizige
+import argparse
+
+parser = argparse.ArgumentParser(description='generate stroke sequence images for characters')
+parser.add_argument('characters', type=str, help='one or more chinese characters')
 
 svgCodeTemplate = """
 <svg viewBox="0 0 1024 1024">
@@ -25,7 +29,7 @@ GRID_COLS = 6
 
 GraphicsPath = 'graphics.txt'
 ResultsPath = 'strokes/{pn}_{ch}_strokes.png'
-TianZiGePath =  './tianzige.png'
+mizigePath =  './mizige.png'
 
 # keys = character, strokes, medians
 strokeMap = {}
@@ -48,7 +52,7 @@ def getStrokeSvgs(strokeMap):
       color = "red" if i == j else "black"
       svgPaths.append(svgPathTemplate.format(COLOR=color,DATA=strokes[j]))
     strokesSvg.append('\n'.join(svgPaths))
-  return strokesSvg[1:]
+  return strokesSvg
 
 def addBackgroundImage(fgImg, bgImg, color="WHITE"):
   newImg = Image.new(("RGBA"), fgImg.size, color=color)
@@ -70,7 +74,7 @@ def imageGrid(imgs, rows, cols, color="WHITE"):
 
 def writeStrokePng(svgs, cols, filename):
   rows = math.ceil(len(svgs) / cols)
-  backgroundImg = Image.open(TianZiGePath)
+  backgroundImg = Image.open(mizigePath)
   # convert svgs to PIL Image objects
   images = [svg2Image(svgCodeTemplate.format(STROKES=svg)) for svg in svgs]
   images = [addBackgroundImage(i, backgroundImg) for i in images]
@@ -80,14 +84,14 @@ def writeStrokePng(svgs, cols, filename):
 
 def svg2Image(svg):
   out = io.BytesIO()
-  print(svg)
   svg2png(bytestring=svg, write_to=out)
   return Image.open(out)
 
 if __name__ == "__main__":
   # output sequences for each char
-  characters = sys.argv[1]
-  for ch in characters: 
+  args = parser.parse_args()
+  mizige.make(ELEM_HEIGHT, ELEM_WIDTH, filename=mizigePath)
+  for ch in args.characters: 
     # get json object for character
     strokeMap = getStrokeMap(ch)
     # get list of pngs
