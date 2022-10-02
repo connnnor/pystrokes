@@ -3,7 +3,7 @@ from cairosvg import svg2png
 ELEM_HEIGHT = 1024
 ELEM_WIDTH = 1024
 
-svgCodeTemplate = """
+SVG_CODE_TEMPLATE = """
 <svg viewBox="0 0 1024 1024" style="fill">
     <!-- tianzige guidelines -->
     <svg style="stroke:{strokeColor};stroke-width: 5;fill-opacity:0.0;stroke-opacity:1;">
@@ -19,10 +19,10 @@ svgCodeTemplate = """
 """
 
 def make(width, height, filename, strokeColor="darkred"):
-  svg2png(bytestring=svgCodeTemplate.format(strokeColor=strokeColor), 
-          write_to=filename, 
-          output_width=width, 
+  svg2png(bytestring=SVG_CODE_TEMPLATE.format(strokeColor=strokeColor),
+          write_to=filename,
+          output_width=width,
           output_height=height)
-  
+
 if __name__ == "__main__":
   make(ELEM_HEIGHT, ELEM_WIDTH, filename="mizige.png")

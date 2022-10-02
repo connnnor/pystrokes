@@ -1,6 +1,6 @@
-from pystrokes import getStrokeSvgs, getStrokeMap
-from flask import Flask, render_template, request
 import argparse
+from flask import Flask, render_template, request
+from pystrokes import getStrokeSvgs, getStrokeMap
 app = Flask(__name__)
 
 MAX_NUM_CHARS = 4
@@ -18,26 +18,23 @@ def stroke():
   chars = request.args.get('character', default = '在', type = str)
   return render_strokes_template(chars)
 
-@app.route("/data/", methods = ['POST', 'GET'])
+@app.route("/data/", methods = ['POST'])
 def data():
-  if request.method == 'GET':
-    return f"The URL /data is accessed directly. Try going to '/form' to submit form"
-  if request.method == 'POST':
-    form_data = request.form
-    return render_strokes_template(form_data['characters'])
+  form_data = request.form
+  return render_strokes_template(form_data['characters'])
 
 def render_strokes_template(inputChars):
-    inputChars = inputChars[:MAX_NUM_CHARS]
-    if len(inputChars) < 1:
-        return render_template('form.html', form_error=True)
-    data = []
-    for ch in inputChars:
-      strokeDict = getStrokeMap(ch)
-      if strokeDict is None:
-        return render_template('form.html', form_error=True)
-      svgs = getStrokeSvgs(strokeDict)
-      data.append({'character' : ch, 'strokes' : svgs})
-    return render_template('index.html', data=data, title=f'{inputChars} Strokes')
- 
+  inputChars = inputChars[:MAX_NUM_CHARS]
+  if len(inputChars) < 1:
+    return render_template('form.html', form_error=True)
+  strokeData = []
+  for ch in inputChars:
+    strokeDict = getStrokeMap(ch)
+    if strokeDict is None:
+      return render_template('form.html', form_error=True)
+    svgs = getStrokeSvgs(strokeDict)
+    strokeData.append({'character' : ch, 'strokes' : svgs})
+  return render_template('index.html', data=strokeData, title=f'{inputChars} Strokes')
+
 args = parser.parse_args()
 app.run(host=args.host, port=args.port)
