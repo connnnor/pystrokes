@@ -1,9 +1,10 @@
 import argparse
 from flask import Flask, render_template, request
 from pystrokes import getStrokeSvgs, getStrokeMap
+import pinyin
 app = Flask(__name__)
 
-MAX_NUM_CHARS = 4
+MAX_NUM_CHARS = 16
 
 parser = argparse.ArgumentParser(description='run pystrokes webserver')
 parser.add_argument('--host', type=str, default='localhost', help='flask host')
@@ -33,7 +34,7 @@ def render_strokes_template(inputChars):
     if strokeDict is None:
       return render_template('form.html', form_error=True)
     svgs = getStrokeSvgs(strokeDict)
-    strokeData.append({'character' : ch, 'strokes' : svgs})
+    strokeData.append({'character' : ch, 'strokes' : svgs, 'pinyin' : pinyin.get(ch)})
   return render_template('index.html', data=strokeData, title=f'{inputChars} Strokes')
 
 args = parser.parse_args()
