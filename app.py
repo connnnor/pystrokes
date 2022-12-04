@@ -2,13 +2,14 @@ import argparse
 from flask import Flask, render_template, request
 from pystrokes import getStrokeSvgs, getStrokeMap
 import pinyin
+from waitress import serve
 app = Flask(__name__)
 
 MAX_NUM_CHARS = 16
 
 parser = argparse.ArgumentParser(description='run pystrokes webserver')
 parser.add_argument('--host', type=str, default='localhost', help='flask host')
-parser.add_argument('--port', type=int, default=5000, help='flask port')
+parser.add_argument('--port', type=int, default=8080, help='flask port')
 
 @app.route("/")
 def form():
@@ -38,4 +39,4 @@ def render_strokes_template(inputChars):
   return render_template('index.html', data=strokeData, title=f'{inputChars} Strokes')
 
 args = parser.parse_args()
-app.run(host=args.host, port=args.port)
+serve(app, host=args.host, port=args.port)
