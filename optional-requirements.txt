@@ -1,0 +1,5 @@
+cairocffi==1.4.0
+CairoSVG==2.5.2
+cffi==1.15.1
+image==1.5.33
+pycairo==1.21.0

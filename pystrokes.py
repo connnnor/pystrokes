@@ -2,10 +2,9 @@ import json
 import io
 import argparse
 import math
-from cairosvg import svg2png
 from PIL import Image
 import pinyin
-import mizige
+import sys
 
 parser = argparse.ArgumentParser(description='generate stroke sequence images for characters')
 parser.add_argument('characters', type=str, help='one or more chinese characters')
@@ -84,6 +83,12 @@ def svg2Image(svg):
   return Image.open(out)
 
 if __name__ == "__main__":
+  try:
+    from cairosvg import svg2png
+    import mizige
+  except ImportError as e:
+      print("Can't find cairosvg module. This is required for generating PNGs. Install and try again")
+      sys.exit(1)
   # output sequences for each char
   args = parser.parse_args()
   mizige.make(ELEM_HEIGHT, ELEM_WIDTH, filename=MIZIGE_PATH)
