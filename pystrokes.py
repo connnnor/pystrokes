@@ -2,7 +2,6 @@ import json
 import io
 import argparse
 import math
-from PIL import Image
 import pinyin
 import sys
 
@@ -85,6 +84,7 @@ def svg2Image(svg):
 if __name__ == "__main__":
   try:
     from cairosvg import svg2png
+    from PIL import Image
     import mizige
   except ImportError as e:
       print("Can't find cairosvg module. This is required for generating PNGs. Install and try again")
